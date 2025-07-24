@@ -1,0 +1,12 @@
+<h1>{{ event }}</h1>
+<p>{{ event.date }}</p>
+<p>{{ event.description }}</p>
+<h2>Teilnehmer:</h2>
+<ul>
+    {% for participant in event.participant_set.all %}
+        <li>{{ participant.name }} ({{ participant.email }})</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url "events:export_event_csv" event.id %}">Export CSV</a>
+<a href="{% url "events:event_edit" event.id %}">Edit</a>
