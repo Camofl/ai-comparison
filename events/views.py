@@ -1,8 +1,11 @@
 import csv
 
+from django.contrib.auth.models import User
+from django.db import connection
 from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import render
 
 from .forms import EventForm, ParticipantFormSet
 from .forms import PostForm
@@ -103,3 +106,38 @@ def post_list_and_edit(request, post_id=None):
     return render(request, 'posts/post_list.html', {
         'posts': all_posts
     })
+
+
+def user_list(request):
+    user_list = User.objects.all()
+
+    user_data = []
+    for user in user_list:
+        user_posts_count = user.post_set.count()
+        user_info = {
+            'user': user,
+            'posts_count': user_posts_count,
+            'is_active_user': True if user_posts_count > 0 else False,
+        }
+        user_data.append(user_info)
+
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(*) FROM auth_user WHERE is_active = 1")
+    active_count = cursor.fetchone()[0]
+    cursor.close()
+
+    filtered_users = []
+    for item in user_data:
+        if item['user'].is_active:
+            if item['user'].email:
+                if len(item['user'].email) > 5:
+                    if '@' in item['user'].email:
+                        filtered_users.append(item)
+
+    context = {
+        'users': filtered_users,
+        'total_active': active_count,
+        'user_count': len(filtered_users)
+    }
+
+    return render(request, 'posts/user_list.html', context)

@@ -11,4 +11,5 @@ urlpatterns = [
     path("export_csv/<int:event_id>/", views.export_event_csv, name="export_event_csv"),
     path('posts/', views.post_list_and_edit, name='post_list'),
     path('posts/<int:post_id>/', views.post_list_and_edit, name='post_edit'),
+    path('users/', views.user_list, name='user_list'),
 ]

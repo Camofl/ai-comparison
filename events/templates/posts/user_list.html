@@ -1,0 +1,20 @@
+<h1>All Users ({{ user_count }} found)</h1>
+<p>Total active users in system: {{ total_active }}</p>
+
+{% if users %}
+    <div class="user-list">
+    {% for user_info in users %}
+        <div class="user-card">
+            <h3>{{ user_info.user.username }}</h3>
+            <p>Email: {{ user_info.user.email }}</p>
+            <p>Posts: {{ user_info.posts_count }}</p>
+            <p>Status: {% if user_info.is_active_user %}Active Contributor{% else %}No Posts{% endif %}</p>
+            <small>Joined: {{ user_info.user.date_joined|date:"M d, Y" }}</small>
+        </div>
+    {% endfor %}
+    </div>
+{% else %}
+    <p>No users found matching criteria.</p>
+{% endif %}
+
+<p><a href="/">Back to Home</a></p>
