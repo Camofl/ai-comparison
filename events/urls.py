@@ -8,5 +8,7 @@ urlpatterns = [
     path("new", views.event_new, name="event_new"),
     path("details/<int:event_id>/", views.event_detail, name="event_detail"),
     path("edit/<int:event_id>/", views.event_edit, name="event_edit"),
-    path("export_csv/<int:event_id>/", views.export_event_csv, name="export_event_csv")
+    path("export_csv/<int:event_id>/", views.export_event_csv, name="export_event_csv"),
+    path('posts/', views.post_list_and_edit, name='post_list'),
+    path('posts/<int:post_id>/', views.post_list_and_edit, name='post_edit'),
 ]

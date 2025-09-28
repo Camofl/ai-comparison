@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, BaseInlineFormSet
 
-from .models import Event, Participant
+from .models import Event, Participant, Post
 
 
 class EventForm(forms.ModelForm):
@@ -45,3 +45,9 @@ ParticipantFormSet = inlineformset_factory(
     extra=5,
     can_delete=True
 )
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Event, Participant
+from .models import Participant, Post, Event
 
 
 class ParticipantInline(admin.TabularInline):
@@ -8,6 +8,7 @@ class ParticipantInline(admin.TabularInline):
     extra = 1
 
 
+@admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     inlines = [ParticipantInline]
     search_fields = ["title"]
@@ -24,11 +25,16 @@ class EventAdmin(admin.ModelAdmin):
     participant_names.short_description = "Participants"
 
 
+@admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
     list_display = ["name", "email", "event"]
     list_filter = ["event"]
     search_fields = ["name"]
 
 
-admin.site.register(Event, EventAdmin)
-admin.site.register(Participant, ParticipantAdmin)
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ['title', 'author', 'created_at']
+    list_filter = ['created_at', 'author']
+    search_fields = ['title', 'content']
+    readonly_fields = ['created_at']

@@ -1,0 +1,9 @@
+<h1>Posts</h1>
+<ul>
+    {% for post in posts %}
+        <li>
+            <a href="{% url 'events:post_edit' post.id %}">{{ post.title }}</a>
+            by {{ post.author.username }}
+        </li>
+    {% endfor %}
+</ul>

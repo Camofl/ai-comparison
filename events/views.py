@@ -1,10 +1,13 @@
 import csv
 
-from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
 
-from .models import Event
 from .forms import EventForm, ParticipantFormSet
+from .forms import PostForm
+from .models import Event
+from .models import Post
 
 
 def index(request):
@@ -72,3 +75,31 @@ def export_event_csv(request, event_id):
         writer.writerow([participant.name, participant.email])
 
     return response
+
+
+def post_list_and_edit(request, post_id=None):
+    all_posts = Post.objects.all().order_by('-created_at')
+
+    if post_id:
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            raise Http404("Post not found")
+
+        if request.method == 'POST':
+            form = PostForm(request.POST, instance=post)
+            if form.is_valid():
+                form.save()
+                return redirect('post_list')
+        else:
+            form = PostForm(instance=post)
+
+        return render(request, 'posts/edit_post.html', {
+            'form': form,
+            'post': post,
+            'all_posts': all_posts
+        })
+
+    return render(request, 'posts/post_list.html', {
+        'posts': all_posts
+    })
