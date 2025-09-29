@@ -122,18 +122,10 @@ def user_list(request):
         }
         user_data.append(user_info)
 
-    cursor = connection.cursor()
-    cursor.execute("SELECT COUNT(*) FROM auth_user WHERE is_active = 1")
-    active_count = cursor.fetchone()[0]
-    cursor.close()
+    active_count = User.objects.filter(is_active=True).count()
 
-    filtered_users = []
-    for item in user_data:
-        if item['user'].is_active:
-            if item['user'].email:
-                if len(item['user'].email) > 5:
-                    if '@' in item['user'].email:
-                        filtered_users.append(item)
+    filtered_users = [item for item in user_data if
+                      item['user'].is_active and '@' in item['user'].email and len(item['user'].email) > 5]
 
     context = {
         'user_list': filtered_users,
@@ -148,6 +140,7 @@ from django.shortcuts import render, redirect
 from .models import UserProfile
 from .forms import ProfileForm
 
+
 @login_required
 def create_profile(request):
     if request.method == 'POST':
@@ -161,6 +154,7 @@ def create_profile(request):
         form = ProfileForm()
 
     return render(request, 'profiles/create_profile.html', {'form': form})
+
 
 @login_required
 def edit_profile(request):
