@@ -135,7 +135,7 @@ def user_list(request):
                         filtered_users.append(item)
 
     context = {
-        'users': filtered_users,
+        'user_list': filtered_users,
         'total_active': active_count,
         'user_count': len(filtered_users)
     }
