@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .views import create_profile, edit_profile
 
 app_name = "events"
 urlpatterns = [
@@ -12,4 +13,6 @@ urlpatterns = [
     path('posts/', views.post_list_and_edit, name='post_list'),
     path('posts/<int:post_id>/', views.post_list_and_edit, name='post_edit'),
     path('users/', views.user_list, name='user_list'),
+    path('create-profile/', create_profile, name='create_profile'),
+    path('edit-profile/', edit_profile, name='edit_profile'),
 ]

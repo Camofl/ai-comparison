@@ -1,0 +1,14 @@
+<!-- In your template -->
+{% load static %}
+<form method="POST" enctype="multipart/form-data"> <!-- Add 'enctype' for file uploads -->
+    {% csrf_token %}
+    <!-- Django form rendering magic here -->
+    <label for="{{ form.birth_date.id_for_label }}">Birth date:</label> {{ form.birth_date }} <br />
+    <label for="{{ form.bio.id_for_label }}">Bio:</label> {{ form.bio }} <br />
+    <label for="{{ form.avatar.id_for_label }}">Avatar:</label> {{ form.avatar }} <br />
+    {% if form.instance.pk %} <!-- Check if we're editing an existing profile -->
+        <input type="submit" value="Update Profile" />
+    {% else %}
+        <input type="submit" value="Create Profile" />
+    {% endif %}
+</form>

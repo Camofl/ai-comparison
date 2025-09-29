@@ -1,5 +1,6 @@
 import csv
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import connection
 from django.http import Http404
@@ -141,3 +142,39 @@ def user_list(request):
     }
 
     return render(request, 'posts/user_list.html', context)
+
+
+from django.shortcuts import render, redirect
+from .models import UserProfile
+from .forms import ProfileForm
+
+@login_required
+def create_profile(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile = form.save(commit=False)  # Don't save it to the db yet
+            profile.user = request.user  # Assign the user attribute of UserProfile
+            profile.save()  # Now we can save the instance to the database
+            return redirect('profile_detail', pk=profile.pk)
+    else:
+        form = ProfileForm()
+
+    return render(request, 'profiles/create_profile.html', {'form': form})
+
+@login_required
+def edit_profile(request):
+    try:
+        profile = request.user.userprofile  # Get the UserProfile instance associated with the current user
+    except UserProfile.DoesNotExist:
+        return redirect('create_profile')  # If there is no profile, redirect to create a new one
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile_detail', pk=profile.pk)  # Redirect to the profile detail page after saving
+    else:
+        form = ProfileForm(instance=profile)
+
+    return render(request, 'profiles/edit_profile.html', {'form': form})
