@@ -7,6 +7,8 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views import generic
 
 from .forms import EventForm, ParticipantFormSet
 from .forms import PostForm
@@ -107,6 +109,26 @@ def post_list_and_edit(request, post_id=None):
     return render(request, 'posts/post_list.html', {
         'posts': all_posts
     })
+
+
+class PostListView(generic.ListView):
+    model = Post
+    template_name = 'posts/post_list.html'  # if this is not named correctly, adjust as needed
+    context_object_name = 'posts'
+    ordering = ['-created_at']
+
+
+class PostUpdateView(generic.UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/edit_post.html'  # if this is not named correctly, adjust as needed
+    context_object_name = 'form'
+    success_url = reverse_lazy('post_list')  # redirect url after successful post edit
+
+
+def post_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    return render(request, 'posts/edit_post.html', {'form': PostForm(instance=post), 'post': post})
 
 
 def user_list(request):
