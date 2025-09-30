@@ -76,32 +76,28 @@ def export_event_csv(request, event_id):
     return response
 
 
-def post_list_and_edit(request, post_id=None):
-    all_posts = Post.objects.all().order_by('-created_at')
+from django.views.generic import ListView, UpdateView
+from django.urls import reverse_lazy
 
-    if post_id:
-        try:
-            post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            raise Http404("Post not found")
 
-        if request.method == 'POST':
-            form = PostForm(request.POST, instance=post)
-            if form.is_valid():
-                form.save()
-                return redirect('post_list')
-        else:
-            form = PostForm(instance=post)
+class PostListView(ListView):
+    model = Post
+    template_name = 'posts/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-created_at']
 
-        return render(request, 'posts/edit_post.html', {
-            'form': form,
-            'post': post,
-            'all_posts': all_posts
-        })
 
-    return render(request, 'posts/post_list.html', {
-        'posts': all_posts
-    })
+class PostUpdateView(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/edit_post.html'
+    success_url = reverse_lazy('events:post_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Include all posts in the edit view context
+        context['all_posts'] = Post.objects.all().order_by('-created_at')
+        return context
 
 
 from django.db.models import Count
