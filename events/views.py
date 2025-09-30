@@ -141,3 +141,51 @@ def user_list(request):
     }
 
     return render(request, 'posts/user_list.html', context)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
+from .models import UserProfile
+from .forms import UserForm, UserProfileForm
+
+
+def profile_view(request, username):
+    """Display a user's profile"""
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+
+    context = {
+        'profile_user': user,
+        'profile': profile,
+        'is_own_profile': request.user.is_authenticated and request.user == user
+    }
+    return render(request, 'profiles/profile.html', context)
+
+
+@login_required
+def profile_edit(request):
+    """Edit the logged-in user's profile"""
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(
+            request.POST,
+            request.FILES,
+            instance=request.user.profile
+        )
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile_view', username=request.user.username)
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = UserProfileForm(instance=request.user.profile)
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form
+    }
+    return render(request, 'profiles/profile_edit.html', context)

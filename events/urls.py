@@ -12,4 +12,12 @@ urlpatterns = [
     path('posts/', views.post_list_and_edit, name='post_list'),
     path('posts/<int:post_id>/', views.post_list_and_edit, name='post_edit'),
     path('users/', views.user_list, name='user_list'),
+    path('profile/<str:username>/', views.profile_view, name='profile_view'),
+    path('profile/edit/', views.profile_edit, name='profile_edit'),
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
