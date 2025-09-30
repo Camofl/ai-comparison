@@ -108,36 +108,32 @@ def post_list_and_edit(request, post_id=None):
     })
 
 
+from django.db.models import Count
+
+
 def user_list(request):
-    user_list = User.objects.all()
+    users = (
+        User.objects.annotate(posts_count=Count('post'))
+        .filter(is_active=True, email__contains='@')
+        .exclude(email__isnull=True)
+        .exclude(email__exact='')
+    )
 
-    user_data = []
-    for user in user_list:
-        user_posts_count = user.post_set.count()
-        user_info = {
+    user_data = [
+        {
             'user': user,
-            'posts_count': user_posts_count,
-            'is_active_user': True if user_posts_count > 0 else False,
+            'posts_count': user.posts_count,
+            'is_active_user': user.posts_count > 0,
         }
-        user_data.append(user_info)
+        for user in users
+        if len(user.email) > 5
+    ]
 
-    cursor = connection.cursor()
-    cursor.execute("SELECT COUNT(*) FROM auth_user WHERE is_active = 1")
-    active_count = cursor.fetchone()[0]
-    cursor.close()
-
-    filtered_users = []
-    for item in user_data:
-        if item['user'].is_active:
-            if item['user'].email:
-                if len(item['user'].email) > 5:
-                    if '@' in item['user'].email:
-                        filtered_users.append(item)
+    total_active = User.objects.filter(is_active=True).count()
 
     context = {
-        'user_list': filtered_users,
-        'total_active': active_count,
-        'user_count': len(filtered_users)
+        'users': user_data,
+        'total_active': total_active,
+        'user_count': len(user_data),
     }
-
     return render(request, 'posts/user_list.html', context)
