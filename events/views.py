@@ -1,16 +1,13 @@
 import csv
 
 from django.contrib.auth.models import User
-from django.db import connection
 from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from .forms import EventForm, ParticipantFormSet
-from .forms import PostForm
 from .models import Event
-from .models import Post
 
 
 def index(request):
@@ -80,32 +77,34 @@ def export_event_csv(request, event_id):
     return response
 
 
-def post_list_and_edit(request, post_id=None):
-    all_posts = Post.objects.all().order_by('-created_at')
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, UpdateView
+from .models import Post
+from .forms import PostForm
 
-    if post_id:
-        try:
-            post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            raise Http404("Post not found")
 
-        if request.method == 'POST':
-            form = PostForm(request.POST, instance=post)
-            if form.is_valid():
-                form.save()
-                return redirect('post_list')
-        else:
-            form = PostForm(instance=post)
+class PostListView(ListView):
+    model = Post
+    template_name = "posts/post_list.html"
+    context_object_name = "posts"
+    ordering = ["-created_at"]
 
-        return render(request, 'posts/edit_post.html', {
-            'form': form,
-            'post': post,
-            'all_posts': all_posts
-        })
 
-    return render(request, 'posts/post_list.html', {
-        'posts': all_posts
-    })
+class PostUpdateView(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = "posts/edit_post.html"
+    context_object_name = "post"
+
+    def get_success_url(self):
+        return reverse_lazy("post_list")
+
+    def get_context_data(self, **kwargs):
+        """Include all posts in context to mimic old behavior"""
+        context = super().get_context_data(**kwargs)
+        context["all_posts"] = Post.objects.all().order_by("-created_at")
+        return context
 
 
 from django.db.models import Count

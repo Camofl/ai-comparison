@@ -1,7 +1,17 @@
 <h1>Edit Post: {{ post.title }}</h1>
+
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Save</button>
 </form>
-<a href="{% url 'events:post_list' %}">Back to list</a>
+
+<h2>All Posts</h2>
+<ul>
+    {% for p in all_posts %}
+        <li>
+            {{ p.title }} - <a href="{% url 'post_edit' p.pk %}">Edit</a>
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'post_list' %}">Back to list</a>
