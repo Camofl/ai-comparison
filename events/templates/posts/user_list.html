@@ -1,9 +1,9 @@
 <h1>All Users ({{ user_count }} found)</h1>
 <p>Total active users in system: {{ total_active }}</p>
 
-{% if users %}
+{% if user_list %}
     <div class="user-list">
-    {% for user_info in users %}
+    {% for user_info in user_list %}
         <div class="user-card">
             <h3>{{ user_info.user.username }}</h3>
             <p>Email: {{ user_info.user.email }}</p>
