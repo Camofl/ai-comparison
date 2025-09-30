@@ -22,4 +22,5 @@ import events
 urlpatterns = [
     path('events/', include('events.urls')),
     path('admin/', admin.site.urls),
+    path('profiles/', include('profiles.urls')),
 ]
